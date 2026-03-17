@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+double calcule_monnaie(double x,double y)
+{	double  monnaie = x - y ;
+	return monnaie;
+}
+
+
+
+
+
+
+
+
+
+
 
 int main() {
     // Initialisation du générateur aléatoire
@@ -21,5 +35,8 @@ int main() {
 	printf("insuffisant\n"); 
 	}
 	}
+
+double rendu = calcule_monnaie(montant , prix);
+printf("Total a rendre est %.2f\n", rendu);
     return 0;
 }
