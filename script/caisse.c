@@ -1,61 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 double calcule_monnaie(double x,double y)
-{	double  monnaie = x - y ;
-	return monnaie;
+{
+    return x - y;
 }
 
-double afficher_monnaie(double rendu) {
-    int billets[] = {2000, 500, 200, 100, 50, 20, 10};
-    int pieces[] = {5, 2, 1};
+int peut_rendre(int montant, int billets[], int stock_b[], int pieces[], int stock_p[]) {
+    for (int i = 0; i < 7; i++) {
+        int besoin = montant / billets[i];
+        if (besoin > stock_b[i]) {
+            besoin = stock_b[i];
+        }
+        montant -= besoin * billets[i];
+    }
 
-    int montant = (int)rendu;
+    for (int i = 0; i < 3; i++) {
+        int besoin = montant / pieces[i];
+        if (besoin > stock_p[i]) {
+            besoin = stock_p[i];
+        }
+        montant -= besoin * pieces[i];
+    }
 
-    printf("Détail de la monnaie:\n");
+    return montant == 0;
+}
+
+void rendre_monnaie(int montant, int billets[], int stock_b[], int pieces[], int stock_p[]) {
+    printf("Monnaie rendue:\n");
 
     for (int i = 0; i < 7; i++) {
-        if (montant >= billets[i]) {
-            int nb = montant / billets[i];
-            montant %= billets[i];
+        int nb = montant / billets[i];
+        if (nb > stock_b[i]) nb = stock_b[i];
+
+        if (nb > 0) {
             printf("Billet Rs%d x %d\n", billets[i], nb);
+            stock_b[i] -= nb;
+            montant -= nb * billets[i];
         }
     }
 
     for (int i = 0; i < 3; i++) {
-        if (montant >= pieces[i]) {
-            int nb = montant / pieces[i];
-            montant %= pieces[i];
+        int nb = montant / pieces[i];
+        if (nb > stock_p[i]) nb = stock_p[i];
+
+        if (nb > 0) {
             printf("Pièce Rs%d x %d\n", pieces[i], nb);
+            stock_p[i] -= nb;
+            montant -= nb * pieces[i];
         }
     }
 }
 
-
-
-
 int main() {
-    // Initialisation du générateur aléatoire
     srand(time(NULL));
 
-    // Générer un prix aléatoire entre 10 et 200
-    double prix = (rand() % 2000) / 10; // 10 à 200
-    double  montant = 0;
+    int billets[] = {2000, 500, 200, 100, 50, 20, 10};
+    int pieces[] = {5, 2, 1};
 
-        printf("montant à payer : Rs%.2f\n", prix);
+    int stock_b[] = {2,2,2,2,2,2,2};
+    int stock_p[] = {5,5,5};
 
-	while( montant < prix )
-	{
-	printf("Entrez le montant:\n");
-	scanf("%lf" ,&montant);
-	if( montant < prix )
-	{
-	printf("insuffisant\n"); 
-	}
-	}
+    while (1) {
+        double prix = (rand() % 2000) / 10;
+        double montant = 0;
 
-double rendu = calcule_monnaie(montant , prix);
-printf("Total a rendre est %.2f\n", rendu);
-afficher_monnaie(rendu);   
- return 0;
+        printf("\nMontant a payer : Rs%.2f\n", prix);
+
+        while (montant < prix) {
+            printf("Entrez le montant:\n");
+            scanf("%lf", &montant);
+
+            if (montant < prix) {
+                printf("Insuffisant\n");
+            }
+        }
+
+        int rendu = (int)calcule_monnaie(montant, prix);
+        printf("Total a rendre : Rs%d\n", rendu);
+
+        if (peut_rendre(rendu, billets, stock_b, pieces, stock_p)) {
+            rendre_monnaie(rendu, billets, stock_b, pieces, stock_p);
+        } else {
+            int choix;
+            printf("Impossible de rendre la monnaie.\n");
+            printf("1. Quitter\n2. Recharger caisse\n");
+            scanf("%d", &choix);
+
+            if (choix == 1) {
+                break;
+            } else {
+                for (int i = 0; i < 7; i++) stock_b[i] = 5;
+                for (int i = 0; i < 3; i++) stock_p[i] = 10;
+                printf("Caisse rechargée.\n");
+            }
+        }
+    }
+
+    return 0;
 }
